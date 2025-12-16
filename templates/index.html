@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMCR Water Quality Dashboard</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body { background-color: #f8f9fa; }
+        #map { height: 500px; width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .card-stat { text-align: center; padding: 20px; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .stat-value { font-size: 24px; font-weight: bold; color: #0d6efd; }
+        .stat-label { font-size: 14px; color: #6c757d; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-primary mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">🌊 รายงานคุณภาพน้ำทะเล (DMCR Data)</span>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4">
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card card-stat">
+                    <div class="stat-value" id="avg-temp">-</div>
+                    <div class="stat-label">อุณหภูมิน้ำเฉลี่ย (°C)</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-stat">
+                    <div class="stat-value" id="avg-salinity">-</div>
+                    <div class="stat-label">ความเค็มเฉลี่ย (PSU)</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-stat">
+                    <div class="stat-value" id="avg-ph">-</div>
+                    <div class="stat-label">pH เฉลี่ย</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-stat">
+                    <div class="stat-value" id="count-stations">-</div>
+                    <div class="stat-label">จำนวนสถานีตรวจวัด</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="card">
+                    <div class="card-header bg-white fw-bold">📍 แผนที่แสดงจุดตรวจวัด</div>
+                    <div class="card-body p-0">
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-white fw-bold">📊 กราฟสรุปคุณภาพน้ำ</div>
+                    <div class="card-body">
+                        <canvas id="qualityChart"></canvas>
+                        <hr>
+                        <canvas id="nutrientChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // 1. Initialize Map
+        // ตั้งค่าพิกัดเริ่มต้น (อ่าวไทย)
+        const map = L.map('map').setView([10.0, 101.0], 6); 
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // 2. Fetch Data from API
+        $.getJSON('/api/data', function(geojson) {
+            
+            let totalTemp = 0, totalSal = 0, totalPh = 0;
+            let count = 0;
+            
+            // ข้อมูลสำหรับกราฟ
+            let stations = [];
+            let doValues = [];
+            let salValues = [];
+            let nitrateValues = [];
+            let phosphateValues = [];
+
+            // Add Markers to Map
+            L.geoJSON(geojson, {
+                onEachFeature: function(feature, layer) {
+                    const p = feature.properties;
+                    
+                    // คำนวณค่าเฉลี่ย (ข้ามค่าที่เป็น null)
+                    if(p.temp) totalTemp += p.temp;
+                    if(p.salinity) totalSal += p.salinity;
+                    if(p.ph) totalPh += p.ph;
+                    count++;
+
+                    // เก็บข้อมูลสำหรับกราฟ (เอาแค่ 10 สถานีแรกพอก่อน ไม่งั้นกราฟแน่นเกิน)
+                    if (count <= 10) {
+                        stations.push(p.station || `St.${count}`);
+                        doValues.push(p.do);
+                        salValues.push(p.salinity);
+                        nitrateValues.push(p.nitrate);
+                        phosphateValues.push(p.phosphate);
+                    }
+
+                    // Popup Content
+                    const popupContent = `
+                        <b>สถานี: ${p.station}</b><br>
+                        วันที่: ${p.date}<br>
+                        <hr style="margin:5px 0;">
+                        Temp: ${p.temp || '-'} °C<br>
+                        Salinity: ${p.salinity || '-'} PSU<br>
+                        DO: ${p.do || '-'} mg/L<br>
+                        pH: ${p.ph || '-'}
+                    `;
+                    layer.bindPopup(popupContent);
+                },
+                pointToLayer: function (feature, latlng) {
+                    // เปลี่ยนสีจุดตามค่า DO (ตัวอย่าง: DO ต่ำสีแดง สูงสีน้ำเงิน)
+                    let color = "#007bff";
+                    if (feature.properties.do < 4) color = "#dc3545"; // ต่ำกว่า 4 สีแดง
+                    
+                    return L.circleMarker(latlng, {
+                        radius: 8,
+                        fillColor: color,
+                        color: "#fff",
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    });
+                }
+            }).addTo(map);
+
+            // 3. Update Dashboard Stats
+            if (count > 0) {
+                $('#avg-temp').text((totalTemp / count).toFixed(2));
+                $('#avg-salinity').text((totalSal / count).toFixed(2));
+                $('#avg-ph').text((totalPh / count).toFixed(2));
+                $('#count-stations').text(count);
+            }
+
+            // 4. Create Charts
+            createCharts(stations, doValues, salValues, nitrateValues, phosphateValues);
+        });
+
+        function createCharts(labels, doData, salData, nitrateData, phosphateData) {
+            // Chart 1: Physical Parameters
+            new Chart(document.getElementById('qualityChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'DO (mg/L)',
+                        data: doData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Salinity (PSU)',
+                        data: salData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        type: 'line'
+                    }]
+                },
+                options: { responsive: true, plugins: { title: { display: true, text: 'DO & Salinity (10 สถานีแรก)' } } }
+            });
+
+            // Chart 2: Nutrients
+            new Chart(document.getElementById('nutrientChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Nitrate (µM)',
+                        data: nitrateData,
+                        borderColor: '#ff6384',
+                        backgroundColor: '#ff6384',
+                        fill: false
+                    },
+                    {
+                        label: 'Phosphate (µM)',
+                        data: phosphateData,
+                        borderColor: '#ffcd56',
+                        backgroundColor: '#ffcd56',
+                        fill: false
+                    }]
+                },
+                options: { responsive: true, plugins: { title: { display: true, text: 'สารอาหาร (Nutrients)' } } }
+            });
+        }
+    </script>
+</body>
+</html>
