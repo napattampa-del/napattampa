@@ -3,186 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DMCR Analytics - Doodle Edition</title>
+    <title>DMCR Analytics Platform</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,300;0,500;0,700;1,300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     
     <style>
-        /* --- DOODLE THEME VARIABLES --- */
         :root {
-            --bg-color: #fdfcf8;
-            --paper-line: #e0e5eb;
-            --text-color: #2c3e50;
-            --primary-color: #6c5ce7; /* Pastel Purple */
-            --accent-color: #00b894;  /* Pastel Green */
-            --card-bg: #ffffff;
-            --border-color: #2d3436;
-            --shadow-color: rgba(0,0,0,0.1);
+            --bg-body: #fafafa;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+            --accent-color: #0c2461; /* Deep Navy Blue */
+            --accent-light: #f0f4f8;
+            --chart-color-1: #0c2461;
+            --chart-color-2: #4a69bd;
         }
 
         body { 
             margin: 0; padding: 0; 
-            font-family: 'Mali', cursive; /* Doodle Font */
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: 'Lora', serif; /* Body Font */
+            background-color: var(--bg-body);
+            color: var(--text-primary);
             overflow: hidden;
-            /* Graph Paper Texture Effect */
-            background-image: 
-                linear-gradient(var(--paper-line) 1px, transparent 1px),
-                linear-gradient(90deg, var(--paper-line) 1px, transparent 1px);
-            background-size: 20px 20px;
+            letter-spacing: 0.02em;
         }
         
-        /* --- HEADER (Hand-drawn style) --- */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif; /* Heading Font */
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* --- HEADER --- */
         #header {
             height: 70px;
-            background-color: var(--card-bg);
-            border-bottom: 3px solid var(--border-color);
-            display: flex; align-items: center; padding: 0 25px; gap: 20px;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.05);
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; padding: 0 40px; gap: 40px;
             z-index: 1000; position: relative;
         }
 
-        .header-title-group {
+        .brand-group {
             display: flex; flex-direction: column;
             margin-right: auto;
         }
         
-        h3 { 
-            margin: 0; font-size: 24px; font-weight: 700; 
-            color: var(--text-color); letter-spacing: 0.5px;
+        .brand-group h3 { 
+            font-size: 24px; color: var(--text-primary); letter-spacing: 0.5px;
         }
 
         .credit-text {
-            font-size: 12px; color: #888; font-weight: 500; font-style: italic;
-            margin-top: -2px;
+            font-size: 11px; color: var(--text-secondary); font-style: italic; margin-top: 2px;
+            font-family: 'Lora', serif;
         }
         
-        /* --- NAV TABS (Sticky Note Style) --- */
-        .nav-tabs { display: flex; gap: 10px; }
+        /* --- NAV TABS (Minimal Text Links) --- */
+        .nav-tabs { display: flex; gap: 30px; }
         .nav-tab {
-            padding: 8px 20px; 
-            border: 2px solid var(--border-color);
-            border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; /* Organic Shape */
-            cursor: pointer; font-size: 14px; font-weight: 700; 
-            background: white;
-            transition: all 0.2s ease;
-            box-shadow: 2px 2px 0 var(--border-color);
+            padding: 10px 0; 
+            cursor: pointer; font-size: 14px; font-weight: 600; 
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-family: 'Lora', serif;
+            letter-spacing: 0.05em;
         }
-        .nav-tab:hover { transform: translateY(-2px); box-shadow: 4px 4px 0 var(--border-color); }
+        .nav-tab:hover { color: var(--text-primary); }
         .nav-tab.active { 
-            background: var(--primary-color); 
-            color: white; 
-            transform: translateY(1px);
-            box-shadow: 1px 1px 0 var(--border-color);
+            color: var(--accent-color); 
+            border-bottom: 2px solid var(--accent-color);
         }
 
-        /* --- INPUTS --- */
+        /* --- INPUTS (Clean Borders) --- */
         .control-group { display: flex; flex-direction: column; }
-        .control-group label { font-size: 12px; color: #555; margin-bottom: 2px; font-weight: 700;}
-        select { 
-            padding: 8px; border: 2px solid var(--border-color); 
-            border-radius: 8px; font-family: 'Mali', cursive; 
-            font-size: 14px; background: #fff; cursor: pointer;
-            box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+        .control-group label { 
+            font-size: 10px; color: var(--text-secondary); 
+            margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.1em;
         }
-        select:focus { outline: none; border-color: var(--primary-color); }
+        select { 
+            padding: 8px 12px; 
+            border: 1px solid var(--border-color); 
+            border-radius: 0; /* Sharp corners */
+            font-family: 'Lora', serif; 
+            font-size: 13px; color: var(--text-primary);
+            background: var(--bg-card); cursor: pointer;
+            min-width: 140px;
+        }
+        select:focus { outline: none; border-color: var(--accent-color); }
 
         /* --- LAYOUT --- */
-        .view-container { display: none; height: calc(100vh - 73px); width: 100%; }
+        .view-container { display: none; height: calc(100vh - 71px); width: 100%; }
         .view-container.active { display: flex; }
 
-        /* Map View */
-        #map-container { flex: 7; height: 100%; position: relative; border-right: 3px solid var(--border-color); }
-        #map { height: 100%; width: 100%; z-index: 1; background-color: #a8dadc; /* Ocean color base */ }
+        #map-container { flex: 7; height: 100%; position: relative; border-right: 1px solid var(--border-color); }
+        #map { height: 100%; width: 100%; z-index: 1; background: #f0f0f0; }
         
         #sidebar { 
-            flex: 3; height: 100%; background: #fffaf0; /* Slightly warmer sidebar */
-            overflow-y: auto; padding: 20px; box-sizing: border-box; 
-            display: flex; flex-direction: column; gap: 20px;
+            flex: 3; height: 100%; background: var(--bg-card);
+            overflow-y: auto; padding: 30px; box-sizing: border-box; 
+            display: flex; flex-direction: column; gap: 30px;
         }
 
-        /* --- CARDS (Doodle Style) --- */
+        /* --- CARDS (Minimal) --- */
         .card, .summary-col { 
-            background: #fff; 
-            border: 2px solid var(--border-color); 
-            border-radius: 12px; 
-            padding: 15px; 
+            background: var(--bg-card); 
+            border: 1px solid var(--border-color); 
+            padding: 20px; 
             position: relative;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.1); /* Hard shadow */
         }
         .card h3, .summary-col h3 { 
-            margin: 0 0 15px 0; font-size: 16px; color: var(--text-color); 
-            border-bottom: 2px dashed #ddd; padding-bottom: 8px;
+            font-size: 18px; color: var(--text-primary); 
+            margin-bottom: 20px;
+            font-weight: 600;
         }
 
         /* --- SUMMARY LAYOUT --- */
-        #summary-view { flex-direction: column; padding: 25px; overflow-y: auto; box-sizing: border-box; gap: 25px; }
-        .summary-row { display: flex; gap: 25px; height: 48%; min-height: 380px; }
-        .summary-col { flex: 1; display: flex; flex-direction: column; }
+        #summary-view { flex-direction: column; padding: 30px; overflow-y: auto; box-sizing: border-box; gap: 30px; background: var(--bg-body); }
+        .summary-row { display: flex; gap: 30px; height: 48%; min-height: 400px; }
+        .summary-col { flex: 1; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 
         .chart-wrapper { flex: 1; position: relative; width: 100%; min-height: 200px; }
 
-        /* --- CONTROLS --- */
+        /* --- DEPTH CONTROLS (Floating Minimal) --- */
         #depth-controls {
-            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; background-color: #fff;
-            padding: 10px 30px; 
-            border: 3px solid var(--border-color);
-            border-radius: 50px;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; background-color: var(--bg-card);
+            padding: 10px 25px; 
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             display: flex; align-items: center; gap: 20px;
-            font-family: 'Mali', cursive;
         }
-        .nav-btn { cursor: pointer; font-size: 24px; color: var(--text-color); width: 30px; text-align: center; transition: 0.2s; font-weight: bold; }
-        .nav-btn:hover { transform: scale(1.2); color: var(--primary-color); }
-        .depth-title { font-size: 16px; font-weight: 700; display: block; text-align: center; }
-        .depth-subtitle { font-size: 12px; color: #666; display: block; text-align: center; }
+        .nav-btn { 
+            cursor: pointer; font-size: 18px; color: var(--text-secondary); 
+            width: 30px; text-align: center; transition: 0.2s; 
+            font-family: 'Playfair Display', serif;
+        }
+        .nav-btn:hover { color: var(--accent-color); }
+        .depth-label-container { text-align: center; min-width: 180px; }
+        .depth-title { font-size: 14px; font-weight: 600; display: block; color: var(--text-primary); letter-spacing: 0.05em; }
+        .depth-subtitle { font-size: 11px; color: var(--text-secondary); display: block; margin-top: 2px; font-style: italic; }
 
         /* --- TABLES & LEGENDS --- */
-        .corr-table { width: 100%; border-collapse: separate; border-spacing: 2px; font-size: 12px; text-align: center; }
-        .corr-table th { background: #eee; font-weight: 700; border-radius: 4px; padding: 6px; }
-        .corr-table td { border-radius: 4px; border: 1px solid transparent; padding: 6px;}
+        .corr-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; }
+        .corr-table th { 
+            background: var(--bg-body); font-weight: 600; padding: 10px; 
+            border-bottom: 1px solid var(--border-color);
+            font-family: 'Playfair Display', serif;
+        }
+        .corr-table td { padding: 8px; border: 1px solid var(--border-color); }
         .corr-cell { cursor: pointer; transition: 0.2s; }
-        .corr-cell:hover { border: 2px solid var(--text-color); transform: scale(1.1); z-index: 10; box-shadow: 2px 2px 0 rgba(0,0,0,0.1); }
-        .corr-cell.active { border: 2px solid var(--primary-color); box-shadow: 0 0 0 2px #fff inset; }
+        .corr-cell:hover { background-color: var(--accent-light) !important; border: 1px solid var(--accent-color); }
+        .corr-cell.active { border: 2px solid var(--accent-color); }
 
         .legend { 
-            background: #fff; padding: 12px; border: 2px solid var(--border-color); 
-            border-radius: 8px; box-shadow: 4px 4px 0 rgba(0,0,0,0.15); 
-            font-size: 11px; width: 180px; font-family: 'Mali', cursive;
+            background: var(--bg-card); padding: 15px; border: 1px solid var(--border-color); 
+            font-size: 11px; width: 160px; font-family: 'Lora', serif;
         }
-        .legend-gradient-bar { height: 12px; width: 100%; background: linear-gradient(to right, #c6dbef, #08519c); margin-bottom: 5px; border: 1px solid #333; border-radius: 4px; }
-        .legend-labels { display: flex; justify-content: space-between; color: #333; font-weight: bold;}
+        .legend h4 { margin-bottom: 8px; font-family: 'Playfair Display', serif; text-align: center;}
+        .legend-gradient-bar { height: 8px; width: 100%; background: linear-gradient(to right, #e3f2fd, #0d47a1); margin-bottom: 8px; }
+        .legend-labels { display: flex; justify-content: space-between; color: var(--text-secondary); font-style: italic;}
 
-        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #ff7675; font-weight: bold;}
+        .close-btn { position: absolute; top: 15px; right: 15px; font-size: 20px; cursor: pointer; color: var(--text-secondary); transition: 0.2s;}
+        .close-btn:hover { color: var(--text-primary); }
         
-        /* Stats Box Styling */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; text-align: center; }
-        .stat-box { background: #f1f2f6; padding: 10px; border-radius: 8px; border: 1px dashed #aaa; }
-        .stat-val { font-size: 18px; font-weight: 700; color: var(--primary-color); }
-        .stat-label { font-size: 11px; color: #666; }
+        /* Stats Box */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; text-align: center; }
+        .stat-box { padding: 10px 0; border-right: 1px solid var(--border-color); }
+        .stat-box:last-child { border-right: none; }
+        .stat-val { font-size: 20px; font-weight: 700; color: var(--text-primary); font-family: 'Playfair Display', serif; }
+        .stat-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; margin-top: 5px; letter-spacing: 0.05em; }
     </style>
 </head>
 <body>
 
     <div id="header">
-        <div class="header-title-group">
+        <div class="brand-group">
             <h3>DMCR Analytics</h3>
-            <span class="credit-text">Made by nptppnm ✨</span>
+            <span class="credit-text">Developed by nptppnm</span>
         </div>
         
         <div class="nav-tabs">
-            <div class="nav-tab active" onclick="switchView('map')">🗺️ Map</div>
-            <div class="nav-tab" onclick="switchView('summary')">📊 Summary</div>
+            <div class="nav-tab active" onclick="switchView('map')">Map Analysis</div>
+            <div class="nav-tab" onclick="switchView('summary')">Summary Report</div>
         </div>
 
         <div class="control-group" id="cruise-control-group" style="display:none;">
-            <label>🚢 Cruise</label>
+            <label>Cruise</label>
             <select id="cruiseSelect">
                 <option value="all">All Cruises</option>
                 <option value="GoT">Gulf of Thailand</option>
@@ -191,14 +203,14 @@
         </div>
 
         <div class="control-group" id="time-control-group">
-            <label>📅 Period</label>
+            <label>Period</label>
             <select id="timeSelect"><option value="">Loading...</option></select>
         </div>
 
         <div class="control-group">
-            <label>🧪 Parameter</label>
+            <label>Parameter</label>
             <select id="paramSelect">
-                <option value="do_ctd_mg_l">Dissolved Oxygen (DO)</option>
+                <option value="do_ctd_mg_l">Dissolved Oxygen</option>
                 <option value="salinity_ctd_psu">Salinity</option>
                 <option value="water_temperature_ctd_c">Temperature</option>
                 <option value="chl_a_ctd_ug_l">Chlorophyll-a</option>
@@ -213,34 +225,34 @@
         <div id="map-container">
             <div id="map"></div>
             <div id="depth-controls">
-                <div class="nav-btn" onclick="changeDepth(-1)">&#10094;</div>
+                <div class="nav-btn" onclick="changeDepth(-1)">&lt;</div>
                 <div class="depth-label-container">
-                    <span class="depth-title" id="depth-title">รวมทุกระดับ</span>
-                    <span class="depth-subtitle" id="depth-subtitle">Average (All Depths)</span>
+                    <span class="depth-title" id="depth-title">All Depths</span>
+                    <span class="depth-subtitle" id="depth-subtitle">Average Value</span>
                 </div>
-                <div class="nav-btn" onclick="changeDepth(1)">&#10095;</div>
+                <div class="nav-btn" onclick="changeDepth(1)">&gt;</div>
             </div>
         </div>
         
         <div id="sidebar">
             <div class="card">
-                <h3>📊 Current Stats <span style="font-size:12px; color:#666; font-weight:normal;" id="stats-subtitle"></span></h3>
-                <div id="stats-content"><p style="text-align:center; color:#888;">Loading...</p></div>
+                <h3>Statistics <span style="font-size:12px; font-weight:400; color:#888;" id="stats-subtitle"></span></h3>
+                <div id="stats-content"><p style="text-align:center; color:#999; font-style:italic;">Loading Data...</p></div>
             </div>
             <div id="overview-panel">
                 <div class="card">
-                    <h3>🌊 Average Profile</h3>
+                    <h3>Average Profile</h3>
                     <div class="chart-wrapper"><canvas id="avgProfileChart"></canvas></div>
                 </div>
                 <div class="card">
-                    <h3>✨ Scatter Plot</h3>
+                    <h3>Data Distribution</h3>
                     <div class="chart-wrapper"><canvas id="scatterChart"></canvas></div>
                 </div>
             </div>
             <div class="card" id="station-panel" style="display:none;">
-                <span class="close-btn" onclick="closeStationView()">×</span>
-                <h3>📍 Station Profile</h3>
-                <p id="station-info" style="font-size:13px; color:#555; margin-bottom:10px;"></p>
+                <span class="close-btn" onclick="closeStationView()">✕</span>
+                <h3>Station Profile</h3>
+                <p id="station-info" style="font-size:13px; color:#555; margin-bottom:15px; font-style:italic;"></p>
                 <div class="chart-wrapper" style="height:250px;"><canvas id="stationChart"></canvas></div>
             </div>
         </div>
@@ -249,24 +261,24 @@
     <div id="summary-view" class="view-container">
         <div class="summary-row">
             <div class="summary-col">
-                <h3>🏆 Station Rankings (Top/Bottom)</h3>
+                <h3>Station Ranking (Top 10)</h3>
                 <div class="chart-wrapper"><canvas id="rankStationChart"></canvas></div>
             </div>
             <div class="summary-col">
-                <h3>📅 Yearly Trends</h3>
+                <h3>Yearly Trends</h3>
                 <div class="chart-wrapper"><canvas id="rankYearChart"></canvas></div>
             </div>
         </div>
         
         <div class="summary-row" style="flex:1;">
             <div class="summary-col" style="flex:1; overflow:hidden;">
-                <h3>🔗 Correlation Matrix</h3>
-                <div style="overflow:auto; height:100%;" id="correlation-container"><p>Loading...</p></div>
+                <h3>Correlation Matrix</h3>
+                <div style="overflow:auto; height:100%;" id="correlation-container"><p style="text-align:center; margin-top:50px; color:#999;">Loading...</p></div>
             </div>
             <div class="summary-col" style="flex:1;">
-                <h3 id="corr-chart-title">📈 Relationship & Trendline</h3>
+                <h3 id="corr-chart-title">Relationship Analysis</h3>
                 <div class="chart-wrapper"><canvas id="corrScatterChart"></canvas></div>
-                <p style="font-size:11px; text-align:center; color:#888;">Click a cell to see the details.</p>
+                <p style="font-size:11px; text-align:center; color:#888; margin-top:10px; font-style:italic;">Select a cell in the matrix to view details.</p>
             </div>
         </div>
     </div>
@@ -275,12 +287,22 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        // Set Default Font for Charts to 'Mali'
-        Chart.defaults.font.family = "'Mali', cursive";
-        Chart.defaults.color = '#2c3e50';
+        // --- CONFIG: SERIF FONTS & COLORS ---
+        Chart.defaults.font.family = "'Lora', serif";
+        Chart.defaults.color = '#333';
+        const colorPalette = {
+            primary: '#0c2461', // Navy Blue
+            secondary: '#4a69bd', // Soft Blue
+            tertiary: '#b2bec3', // Grey
+            text: '#1a1a1a'
+        };
 
         const map = L.map('map').setView([13.0, 100.5], 6);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; CARTO' }).addTo(map);
+        // Use CartoDB Positron for Minimalist Map Style
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { 
+            attribution: '&copy; CARTO' 
+        }).addTo(map);
+        
         const markersLayer = L.featureGroup().addTo(map);
         let legendControl = L.control({position: 'bottomright'});
         
@@ -293,23 +315,19 @@
 
         let currentDepthIndex = 0;
         const depthLevels = [
-            { id: 'all', dbValue: null, title: 'รวมทุกระดับ', subtitle: 'Average (All Depths)' },
-            { id: 'surface', dbValue: 'S', title: 'ผิวน้ำ (Surface)', subtitle: 'Depth ~ 0-1m' },
-            { id: 'mid', dbValue: 'M', title: 'กลางน้ำ (Mid-Water)', subtitle: 'Mid Depth' },
-            { id: 'bottom', dbValue: 'B', title: 'หน้าดิน (Bottom)', subtitle: 'Seabed' }
+            { id: 'all', dbValue: null, title: 'All Depths', subtitle: 'Average Value' },
+            { id: 'surface', dbValue: 'S', title: 'Surface', subtitle: 'Depth ~ 0-1m' },
+            { id: 'mid', dbValue: 'M', title: 'Mid-Water', subtitle: 'Mid Depth' },
+            { id: 'bottom', dbValue: 'B', title: 'Bottom', subtitle: 'Seabed' }
         ];
         const levelMap = { 'S': 'Surface', 'M': 'Mid-Water', 'B': 'Bottom' };
         const yLabelsOrder = ['Surface', 'Mid-Water', 'Bottom'];
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         const paramNames = {
-            'do_ctd_mg_l': 'DO',
-            'salinity_ctd_psu': 'Sal',
-            'water_temperature_ctd_c': 'Temp',
-            'chl_a_ctd_ug_l': 'Chl-a',
-            'nitrate_um': 'NO3',
-            'phosphate_um': 'PO4',
-            'tss_mg_l': 'TSS'
+            'do_ctd_mg_l': 'DO', 'salinity_ctd_psu': 'Salinity',
+            'water_temperature_ctd_c': 'Temp', 'chl_a_ctd_ug_l': 'Chl-a',
+            'nitrate_um': 'NO3', 'phosphate_um': 'PO4', 'tss_mg_l': 'TSS'
         };
         const paramsList = Object.keys(paramNames);
 
@@ -382,15 +400,15 @@
         }
 
         function getColor(value, min, max) {
-            if (value === null || value === undefined) return '#808080';
-            if (max === min) return '#a29bfe';
+            if (value === null || value === undefined) return '#ccc';
+            if (max === min) return '#999';
             const ratio = (value - min) / (max - min);
-            // Aesthetic Blues
-            if (ratio > 0.8) return '#2d3436'; // Very Dark
-            if (ratio > 0.6) return '#0984e3'; // Bright Blue
-            if (ratio > 0.4) return '#74b9ff'; // Soft Blue
-            if (ratio > 0.2) return '#dfe6e9'; // Greyish
-            return '#f1f2f6'; // Almost white
+            // Minimal Blue Scale
+            if (ratio > 0.8) return '#0c2461'; // Deep Navy
+            if (ratio > 0.6) return '#1e3799'; 
+            if (ratio > 0.4) return '#4a69bd'; 
+            if (ratio > 0.2) return '#6a89cc'; 
+            return '#dbe9f4'; // Very Light Blue
         }
 
         function renderMapByDepth() {
@@ -435,16 +453,15 @@
                         drawn.add(point.station);
                     }
                     const color = getColor(val, minVal, maxVal);
-                    // Use a slightly larger stroke for doodle effect
                     const marker = L.circleMarker([point.lat, point.lon], { 
-                        radius: 9, 
+                        radius: 7, 
                         fillColor: color, 
-                        color: "#2d3436", 
-                        weight: 2, 
+                        color: "#ffffff", 
+                        weight: 1, 
                         opacity: 1, 
                         fillOpacity: 1 
                     });
-                    marker.bindPopup(`<div style="text-align:center; font-family:'Mali'"><b>${point.station}</b><br>(${point.sampling_level})<br>${paramName}: <b style="color:${color}">${val.toFixed(2)}</b></div>`);
+                    marker.bindPopup(`<div style="text-align:center; font-family:'Lora'"><b>${point.station}</b><br><span style="color:#666; font-size:10px;">${point.sampling_level}</span><br>${paramName}: <b style="color:${color}">${val.toFixed(2)}</b></div>`);
                     marker.on('click', () => renderStationProfile(point.station));
                     markersLayer.addLayer(marker);
                 }
@@ -461,9 +478,9 @@
             const avg = (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2);
             document.getElementById('stats-content').innerHTML = `
                 <div class="stats-grid">
-                    <div class="stat-box"><div class="stat-val" style="color:#74b9ff">${min}</div><div class="stat-label">Min</div></div>
-                    <div class="stat-box"><div class="stat-val" style="color:#2d3436">${avg}</div><div class="stat-label">Avg</div></div>
-                    <div class="stat-box"><div class="stat-val" style="color:#0984e3">${max}</div><div class="stat-label">Max</div></div>
+                    <div class="stat-box"><div class="stat-val" style="color:#6a89cc">${min}</div><div class="stat-label">Min</div></div>
+                    <div class="stat-box"><div class="stat-val" style="color:#333">${avg}</div><div class="stat-label">Avg</div></div>
+                    <div class="stat-box"><div class="stat-val" style="color:#0c2461">${max}</div><div class="stat-label">Max</div></div>
                 </div>`;
         }
 
@@ -474,7 +491,7 @@
                 const div = L.DomUtil.create('div', 'legend');
                 div.innerHTML = `<h4>${name}</h4><div class="legend-gradient-bar"></div>
                 <div class="legend-labels"><span>Low (${min.toFixed(2)})</span><span>High (${max.toFixed(2)})</span></div>
-                <div style="font-size:10px;color:#999;text-align:center;margin-top:5px">Global Scale</div>`;
+                <div style="font-size:9px;color:#999;text-align:center;margin-top:5px; font-style:italic;">Global Scale</div>`;
                 return div;
             };
             legendControl.addTo(map);
@@ -511,10 +528,8 @@
                     datasets: [{
                         label: `Avg ${paramName}`,
                         data: displaySt.map(d => d.avg_val),
-                        backgroundColor: '#6c5ce7', // Pastel Purple
-                        borderWidth: 2,
-                        borderColor: '#2d3436',
-                        borderRadius: 5
+                        backgroundColor: colorPalette.primary,
+                        barPercentage: 0.6
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y' }
@@ -530,10 +545,8 @@
                     datasets: [{
                         label: `Avg ${paramName}`,
                         data: sortedYears.map(d => d.avg_val),
-                        backgroundColor: '#00b894', // Pastel Green
-                        borderWidth: 2,
-                        borderColor: '#2d3436',
-                        borderRadius: 5
+                        backgroundColor: colorPalette.secondary,
+                        barPercentage: 0.6
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
@@ -541,7 +554,7 @@
         }
 
         function renderCorrelationMatrix(data) {
-            if (!data || data.length === 0) { document.getElementById('correlation-container').innerHTML = "<p>No Data</p>"; return; }
+            if (!data || data.length === 0) { document.getElementById('correlation-container').innerHTML = "<p style='text-align:center;'>No Data</p>"; return; }
             const shortNames = paramsList.map(k => paramNames[k]);
             const calcCorr = (keyX, keyY) => {
                 const n = data.length;
@@ -563,14 +576,16 @@
             paramsList.forEach((p1, i) => {
                 html += `<tr><th>${shortNames[i]}</th>`;
                 paramsList.forEach((p2, j) => {
-                    if (i === j) html += '<td style="background:#dfe6e9;">1.00</td>';
+                    if (i === j) html += '<td style="background:#f8f9fa;">1.00</td>';
                     else {
                         const r = calcCorr(p1, p2);
                         let bg = '#fff';
-                        // Aesthetic Red/Blue scale
-                        if(r > 0) bg = `rgba(255, 118, 117, ${Math.abs(r)})`; // Pastel Red
-                        else bg = `rgba(116, 185, 255, ${Math.abs(r)})`; // Pastel Blue
-                        html += `<td class="corr-cell" onclick="updateCorrScatterChart('${p1}', '${p2}', this)" style="background:${bg};">${r.toFixed(2)}</td>`;
+                        // Clean Red/Blue correlation scale
+                        if(r > 0) bg = `rgba(12, 36, 97, ${Math.abs(r)*0.8})`; // Navy Blue for positive
+                        else bg = `rgba(180, 20, 20, ${Math.abs(r)*0.6})`; // Deep Red for negative
+                        
+                        let textColor = Math.abs(r) > 0.4 ? 'white' : 'black';
+                        html += `<td class="corr-cell" onclick="updateCorrScatterChart('${p1}', '${p2}', this)" style="background:${bg}; color:${textColor}">${r.toFixed(2)}</td>`;
                     }
                 });
                 html += '</tr>';
@@ -601,15 +616,15 @@
             const minX = Math.min(...dataPoints.map(d => d.x)), maxX = Math.max(...dataPoints.map(d => d.x));
             const trendData = [{ x: minX, y: reg.m * minX + reg.b }, { x: maxX, y: reg.m * maxX + reg.b }];
 
-            document.getElementById('corr-chart-title').innerHTML = `📈 ${xName} vs ${yName} <span style="font-size:12px; color:#666;">(R²=${reg.r2.toFixed(3)})</span>`;
+            document.getElementById('corr-chart-title').innerHTML = `Regression: ${xName} vs ${yName} <span style="font-size:12px; color:#666; font-weight:400; font-family:'Lora'">(R²=${reg.r2.toFixed(3)})</span>`;
             const ctx = document.getElementById('corrScatterChart').getContext('2d');
             if (corrScatterChart) corrScatterChart.destroy();
             corrScatterChart = new Chart(ctx, {
                 type: 'scatter',
                 data: {
                     datasets: [
-                        { label: 'Data', data: dataPoints, backgroundColor: 'rgba(108, 92, 231, 0.4)', pointRadius: 3 },
-                        { label: 'Trend', data: trendData, type: 'line', borderColor: '#d63031', borderWidth: 2, pointRadius: 0, fill: false, tension:0 }
+                        { label: 'Data', data: dataPoints, backgroundColor: 'rgba(12, 36, 97, 0.3)', pointRadius: 3, borderWidth: 0 },
+                        { label: 'Trend', data: trendData, type: 'line', borderColor: '#b33939', borderWidth: 2, pointRadius: 0, fill: false, tension:0 }
                     ]
                 },
                 options: { responsive: true, maintainAspectRatio: false, scales: { x: { title: { display: true, text: xName } }, y: { title: { display: true, text: yName } } } }
@@ -637,7 +652,7 @@
             if (avgProfileChart) avgProfileChart.destroy();
             avgProfileChart = new Chart(ctxAvg, {
                 type: 'line',
-                data: { labels: yLabelsOrder, datasets: [{ label: 'Average Profile', data: lineData, borderColor: '#fdcb6e', backgroundColor: 'rgba(253, 203, 110, 0.2)', tension: 0.3, pointRadius:6, borderWidth:3, borderColor: '#fab1a0' }] },
+                data: { labels: yLabelsOrder, datasets: [{ label: 'Average Profile', data: lineData, borderColor: colorPalette.primary, backgroundColor: 'rgba(12, 36, 97, 0.1)', tension: 0.3, pointRadius:5 }] },
                 options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { y: { reverse: true, type:'category' }, x:{title:{display:true,text:paramName}} } }
             });
 
@@ -646,7 +661,7 @@
             if (scatterChart) scatterChart.destroy();
             scatterChart = new Chart(ctxScat, {
                 type: 'scatter',
-                data: { datasets: [{ label: 'All Data', data: scatterData, backgroundColor: 'rgba(116, 185, 255, 0.6)', pointRadius:3 }] },
+                data: { datasets: [{ label: 'All Data', data: scatterData, backgroundColor: 'rgba(74, 105, 189, 0.5)', pointRadius:3 }] },
                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { reverse: true, title:{display:true, text:'Depth (m)'} }, x:{title:{display:true,text:paramName}} } }
             });
         }
@@ -664,11 +679,11 @@
                 type: 'line',
                 data: {
                     labels: yLabelsOrder,
-                    datasets: [{ label: stationName, data: sData.map(d=>({x:d[param], y:levelMap[d.sampling_level]||d.sampling_level})), borderColor: '#6c5ce7', tension:0.2, fill:false, borderWidth:3, pointBackgroundColor: '#fff', pointRadius:5 }]
+                    datasets: [{ label: stationName, data: sData.map(d=>({x:d[param], y:levelMap[d.sampling_level]||d.sampling_level})), borderColor: colorPalette.primary, tension:0.2, fill:false, pointBackgroundColor: '#fff' }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { y: { type: 'category', reverse: true, title: { display: true, text: 'Level' } }, x:{title:{display:true,text:paramName}} } }
             });
-            document.getElementById('station-info').innerHTML = `📍 <b>${stationName}</b><br>${paramName}`;
+            document.getElementById('station-info').innerHTML = `Station: <b>${stationName}</b> | Parameter: ${paramName}`;
         }
 
         function closeStationView() { renderOverviewCharts(); }
