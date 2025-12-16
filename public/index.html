@@ -3,223 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DMCR Analytics - Vintage Edition</title>
+    <title>DMCR Analytics</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
-    
     <style>
+        /* --- GITHUB (PRIMER) DESIGN SYSTEM --- */
         :root {
-            --bg-paper: #f4e4bc; /* Cream/Aged Paper */
-            --ink-color: #2c2c2c; /* Charcoal Ink */
-            --accent-red: #8b0000; /* Dark Red */
-            --accent-blue: #192a56; /* Vintage Navy */
-            --border-style: 3px double var(--ink-color); /* Double Line Border */
+            --bg-canvas: #f6f8fa;       /* Light Gray Background */
+            --bg-surface: #ffffff;      /* White Cards */
+            --border-default: #d0d7de;  /* Subtle Border */
+            --text-primary: #24292f;    /* Dark Gray Text */
+            --text-secondary: #57606a;  /* Light Gray Text */
+            --accent-fg: #0969da;       /* GitHub Blue */
+            --success-fg: #1a7f37;      /* GitHub Green */
+            --shadow-sm: 0 1px 0 rgba(27,31,36,0.04);
+            --radius: 6px;
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
         }
 
         body { 
             margin: 0; padding: 0; 
-            font-family: 'Cormorant Garamond', serif; 
-            background-color: var(--bg-paper);
-            color: var(--ink-color);
+            font-family: var(--font-stack);
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
             overflow: hidden;
-            /* Texture Effect: Subtle noise */
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            font-size: 14px;
+            line-height: 1.5;
         }
         
-        h1, h2, h3, h4 {
-            font-family: 'Cinzel', serif;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 700;
-            margin: 0;
-        }
-
+        h3 { font-size: 16px; font-weight: 600; margin: 0; }
+        
         /* --- HEADER --- */
         #header {
-            height: 80px;
-            background-color: var(--bg-paper);
-            border-bottom: var(--border-style);
-            display: flex; align-items: center; padding: 0 40px; gap: 40px;
-            position: relative;
-            z-index: 1000;
-            /* Decorative Top Line */
-            box-shadow: inset 0 5px 0 0 var(--ink-color); 
+            height: 60px;
+            background-color: #24292f; /* GitHub Dark Header */
+            color: white;
+            display: flex; align-items: center; padding: 0 24px; gap: 24px;
+            z-index: 1000; position: relative;
         }
 
-        .brand-group {
-            display: flex; flex-direction: column;
-            margin-right: auto;
-            border: 2px solid var(--ink-color);
-            padding: 5px 15px;
-        }
-        
-        .brand-group h3 { font-size: 22px; color: var(--ink-color); line-height: 1; }
-        .credit-text {
-            font-size: 10px; color: var(--accent-red); font-style: italic; 
-            font-family: 'Cinzel', serif; margin-top: 2px; text-align: center;
-        }
-        
-        /* --- NAV TABS (Classic Menu Style) --- */
-        .nav-tabs { display: flex; gap: 0; border: 1px solid var(--ink-color); }
+        .brand-group { display: flex; align-items: baseline; gap: 10px; margin-right: auto; }
+        .brand-group h3 { color: white; font-size: 18px; font-weight: 600; }
+        .brand-group span { color: #8b949e; font-size: 12px; } /* Muted text */
+
+        /* --- NAV TABS (Underline Style) --- */
+        .nav-tabs { display: flex; gap: 8px; height: 100%; align-items: flex-end; }
         .nav-tab {
-            padding: 10px 25px; 
-            cursor: pointer; font-size: 14px; font-weight: 700; 
-            color: var(--ink-color);
-            background: transparent;
-            border-right: 1px solid var(--ink-color);
+            padding: 10px 12px;
+            color: #d0d7de;
+            cursor: pointer;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
             transition: all 0.2s;
-            font-family: 'Cinzel', serif;
         }
-        .nav-tab:last-child { border-right: none; }
-        .nav-tab:hover { background: rgba(0,0,0,0.05); }
+        .nav-tab:hover { color: white; }
         .nav-tab.active { 
-            background: var(--ink-color); 
-            color: var(--bg-paper); 
+            color: white; 
+            border-bottom: 3px solid #fd8c73; /* GitHub Action Orange or generic highlight */
         }
 
-        /* --- CONTROLS --- */
+        /* --- INPUTS --- */
+        .control-group { display: flex; flex-direction: column; }
         .control-group label { 
-            font-size: 11px; color: var(--accent-blue); 
-            font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-            font-family: 'Cinzel', serif;
+            font-size: 11px; color: #8b949e; font-weight: 600; margin-bottom: 2px; 
         }
         select { 
-            padding: 5px 10px; 
-            border: 2px solid var(--ink-color); 
-            border-radius: 0; /* Sharp Edges */
-            background: transparent; 
-            font-family: 'Cormorant Garamond', serif; 
-            font-weight: 600; font-size: 16px;
-            color: var(--ink-color); cursor: pointer;
-            min-width: 150px;
+            padding: 4px 8px; 
+            border: 1px solid #57606a; 
+            background-color: #24292f; color: white;
+            border-radius: var(--radius);
+            font-family: inherit; font-size: 13px;
+            cursor: pointer;
         }
-        select:focus { outline: 2px solid var(--accent-red); }
+        select:focus { outline: 2px solid #0969da; border-color: transparent; }
 
         /* --- LAYOUT --- */
-        .view-container { display: none; height: calc(100vh - 83px); width: 100%; }
+        .view-container { display: none; height: calc(100vh - 60px); width: 100%; }
         .view-container.active { display: flex; }
 
-        #map-container { flex: 7; height: 100%; position: relative; border-right: var(--border-style); }
-        
-        /* Map Filter to look vintage */
-        #map { height: 100%; width: 100%; z-index: 1; filter: sepia(40%) contrast(90%); }
+        #map-container { flex: 7; height: 100%; position: relative; border-right: 1px solid var(--border-default); }
+        #map { height: 100%; width: 100%; z-index: 1; background: #eef1f5; }
         
         #sidebar { 
-            flex: 3; height: 100%; background: var(--bg-paper);
+            flex: 3; height: 100%; background: var(--bg-canvas);
             overflow-y: auto; padding: 20px; box-sizing: border-box; 
-            display: flex; flex-direction: column; gap: 20px;
-            /* Subtle Hatching Pattern Background */
-            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.02) 10px, rgba(0,0,0,0.02) 11px);
+            display: flex; flex-direction: column; gap: 16px;
         }
 
-        /* --- CARDS (Engraved Frame) --- */
+        /* --- CARDS (Box Style) --- */
         .card, .summary-col { 
-            background: var(--bg-paper); 
-            border: 2px solid var(--ink-color); 
-            padding: 15px; position: relative;
-            /* Corner decorations */
-            outline: 1px solid var(--ink-color);
-            outline-offset: -5px;
+            background: var(--bg-surface); 
+            border: 1px solid var(--border-default); 
+            border-radius: var(--radius);
+            padding: 16px; 
+            box-shadow: var(--shadow-sm);
         }
-        .card h3, .summary-col h3 { 
-            font-size: 18px; color: var(--ink-color); 
-            text-align: center; border-bottom: 1px solid var(--ink-color); 
-            padding-bottom: 10px; margin-bottom: 15px;
+        
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-default);
+            padding-bottom: 12px; margin-bottom: 12px;
         }
-        /* Decorative symbol under title */
-        .card h3::after, .summary-col h3::after {
-            content: "✦"; display: block; font-size: 12px; margin-top: 5px; color: var(--accent-red);
-        }
+        .card h3, .summary-col h3 { font-size: 14px; font-weight: 600; }
 
         /* --- SUMMARY LAYOUT --- */
-        #summary-view { flex-direction: column; padding: 30px; overflow-y: auto; box-sizing: border-box; gap: 30px; }
-        .summary-row { display: flex; gap: 30px; height: 48%; min-height: 400px; }
+        #summary-view { flex-direction: column; padding: 24px; overflow-y: auto; gap: 24px; }
+        .summary-row { display: flex; gap: 24px; height: 48%; min-height: 350px; }
         .summary-col { flex: 1; display: flex; flex-direction: column; }
-
+        
         .chart-wrapper { flex: 1; position: relative; width: 100%; min-height: 200px; }
 
-        /* --- DEPTH CONTROLS (Vintage Tag) --- */
+        /* --- FLOATING CONTROLS --- */
         #depth-controls {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; background-color: var(--bg-paper);
-            padding: 5px 20px; 
-            border: 2px solid var(--ink-color);
-            display: flex; align-items: center; gap: 15px;
-            box-shadow: 3px 3px 0 var(--ink-color);
+            position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; background-color: var(--bg-surface);
+            padding: 6px 16px; 
+            border: 1px solid var(--border-default);
+            border-radius: 20px;
+            box-shadow: 0 3px 6px rgba(140,149,159,0.15);
+            display: flex; align-items: center; gap: 16px;
         }
-        .nav-btn { cursor: pointer; font-size: 20px; color: var(--ink-color); font-weight: bold; }
-        .nav-btn:hover { color: var(--accent-red); }
-        .depth-title { font-family: 'Cinzel', serif; font-size: 14px; font-weight: 700; }
-        .depth-subtitle { font-size: 12px; font-style: italic; letter-spacing: 1px; }
-
-        /* --- TABLES (Grid Layout) --- */
-        .corr-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: center; border: 2px solid var(--ink-color); }
-        .corr-table th { 
-            background: var(--ink-color); color: var(--bg-paper); 
-            font-family: 'Cinzel', serif; padding: 8px; border: 1px solid var(--bg-paper);
+        .nav-btn { 
+            cursor: pointer; font-size: 16px; color: var(--text-secondary); 
+            width: 24px; text-align: center; font-weight: bold;
+            border-radius: 4px;
         }
-        .corr-table td { padding: 6px; border: 1px solid var(--ink-color); font-weight: 600; }
-        .corr-cell { cursor: pointer; transition: 0.2s; }
-        .corr-cell:hover { background-color: var(--accent-red) !important; color: white !important; }
-        .corr-cell.active { box-shadow: inset 0 0 0 2px var(--accent-blue); }
-
-        /* --- LEGEND (Engraving Style) --- */
-        .legend { 
-            background: var(--bg-paper); padding: 10px; border: 2px solid var(--ink-color); 
-            font-size: 12px; width: 160px; font-family: 'Cormorant Garamond', serif; font-weight: 600;
-            outline: 1px solid var(--ink-color); outline-offset: -3px;
-        }
-        .legend h4 { margin-bottom: 5px; font-family: 'Cinzel', serif; text-align: center; font-size: 12px;}
-        /* Hatching pattern for gradient */
-        .legend-gradient-bar { 
-            height: 10px; width: 100%; 
-            background: linear-gradient(to right, #fff, var(--ink-color)); 
-            border: 1px solid var(--ink-color); margin-bottom: 5px; 
-        }
-        .legend-labels { display: flex; justify-content: space-between; font-style: italic;}
-
-        .close-btn { position: absolute; top: 5px; right: 10px; font-size: 24px; cursor: pointer; color: var(--accent-red); font-family: 'Cinzel';}
+        .nav-btn:hover { background-color: var(--bg-canvas); color: var(--accent-fg); }
         
-        /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border: 1px solid var(--ink-color); }
-        .stat-box { padding: 10px 0; border-right: 1px solid var(--ink-color); background: rgba(0,0,0,0.02); }
-        .stat-box:last-child { border-right: none; }
-        .stat-val { font-size: 22px; font-weight: 700; color: var(--ink-color); font-family: 'Cinzel', serif; }
-        .stat-label { font-size: 11px; color: var(--accent-blue); text-transform: uppercase; margin-top: 2px; }
+        .depth-info { text-align: center; }
+        .depth-title { font-size: 13px; font-weight: 600; display: block; }
+        .depth-subtitle { font-size: 11px; color: var(--text-secondary); }
+
+        /* --- TABLES & LEGENDS --- */
+        .corr-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; }
+        .corr-table th { 
+            background: var(--bg-canvas); font-weight: 600; padding: 8px; 
+            border: 1px solid var(--border-default);
+        }
+        .corr-table td { padding: 8px; border: 1px solid var(--border-default); color: var(--text-primary); }
+        .corr-cell { cursor: pointer; }
+        .corr-cell:hover { outline: 2px solid var(--accent-fg); z-index: 10; }
+        .corr-cell.active { outline: 2px solid var(--accent-fg); z-index: 10; }
+
+        .legend { 
+            background: var(--bg-surface); padding: 12px; 
+            border: 1px solid var(--border-default); border-radius: var(--radius);
+            font-size: 11px; width: 150px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .legend-gradient-bar { height: 6px; width: 100%; background: linear-gradient(to right, #ddf4ff, #0969da); margin-bottom: 6px; border-radius: 2px; }
+        .legend-labels { display: flex; justify-content: space-between; color: var(--text-secondary); }
+
+        .close-btn { font-size: 18px; cursor: pointer; color: var(--text-secondary); }
+        .close-btn:hover { color: #cf222e; } /* GitHub Danger Color */
+
+        /* Stats Box */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--border-default); border: 1px solid var(--border-default); border-radius: var(--radius); overflow: hidden; }
+        .stat-box { background: var(--bg-surface); padding: 12px; text-align: center; }
+        .stat-val { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+        .stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
     </style>
 </head>
 <body>
 
     <div id="header">
         <div class="brand-group">
+            <svg height="24" viewBox="0 0 16 16" width="24" style="fill:white;"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg>
             <h3>DMCR Analytics</h3>
-            <span class="credit-text">Est. 2025 by nptppnm</span>
+            <span>by nptppnm</span>
         </div>
         
         <div class="nav-tabs">
-            <div class="nav-tab active" onclick="switchView('map')">Map View</div>
-            <div class="nav-tab" onclick="switchView('summary')">Report</div>
+            <div class="nav-tab active" onclick="switchView('map')">Map</div>
+            <div class="nav-tab" onclick="switchView('summary')">Summary</div>
         </div>
 
-        <div class="control-group" id="cruise-control-group" style="display:none;">
-            <label>Cruise Selection</label>
+        <div class="control-group" id="cruise-control-group" style="display:none; margin-left:auto;">
+            <label>Cruise</label>
             <select id="cruiseSelect">
                 <option value="all">All Cruises</option>
                 <option value="GoT">Gulf of Thailand</option>
-                <option value="River">River Data</option>
+                <option value="River">River</option>
             </select>
         </div>
 
-        <div class="control-group" id="time-control-group">
-            <label>Time Period</label>
+        <div class="control-group" id="time-control-group" style="margin-left:auto;">
+            <label>Period</label>
             <select id="timeSelect"><option value="">Loading...</option></select>
         </div>
 
-        <div class="control-group">
+        <div class="control-group" style="margin-left: 10px;">
             <label>Parameter</label>
             <select id="paramSelect">
                 <option value="do_ctd_mg_l">Dissolved Oxygen</option>
@@ -237,34 +211,41 @@
         <div id="map-container">
             <div id="map"></div>
             <div id="depth-controls">
-                <div class="nav-btn" onclick="changeDepth(-1)">&#9664;</div> <div class="depth-label-container">
+                <div class="nav-btn" onclick="changeDepth(-1)">◀</div>
+                <div class="depth-info">
                     <span class="depth-title" id="depth-title">All Depths</span>
-                    <span class="depth-subtitle" id="depth-subtitle">Average Value</span>
+                    <span class="depth-subtitle" id="depth-subtitle">Average</span>
                 </div>
-                <div class="nav-btn" onclick="changeDepth(1)">&#9654;</div>
+                <div class="nav-btn" onclick="changeDepth(1)">▶</div>
             </div>
         </div>
         
         <div id="sidebar">
             <div class="card">
-                <h3>Statistics <span style="font-size:12px; font-weight:400; font-style:italic;" id="stats-subtitle"></span></h3>
-                <div id="stats-content"><p style="text-align:center; font-style:italic;">No Data Selected</p></div>
-            </div>
-            <div id="overview-panel">
-                <div class="card">
-                    <h3>Average Profile</h3>
-                    <div class="chart-wrapper"><canvas id="avgProfileChart"></canvas></div>
+                <div class="card-header">
+                    <h3>Statistics</h3>
+                    <span style="font-size:11px; color:#57606a;" id="stats-subtitle"></span>
                 </div>
-                <div class="card">
-                    <h3>Distribution</h3>
-                    <div class="chart-wrapper"><canvas id="scatterChart"></canvas></div>
-                </div>
+                <div id="stats-content"><p style="text-align:center; color:#57606a; font-size:12px;">No Data</p></div>
             </div>
+            
+            <div class="card">
+                <div class="card-header"><h3>Average Profile</h3></div>
+                <div class="chart-wrapper"><canvas id="avgProfileChart"></canvas></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3>Distribution</h3></div>
+                <div class="chart-wrapper"><canvas id="scatterChart"></canvas></div>
+            </div>
+            
             <div class="card" id="station-panel" style="display:none;">
-                <span class="close-btn" onclick="closeStationView()">✕</span>
-                <h3>Station Profile</h3>
-                <p id="station-info" style="font-size:14px; text-align:center; margin-bottom:15px; font-weight:bold;"></p>
-                <div class="chart-wrapper" style="height:250px;"><canvas id="stationChart"></canvas></div>
+                <div class="card-header">
+                    <h3>Station Profile</h3>
+                    <span class="close-btn" onclick="closeStationView()">×</span>
+                </div>
+                <p id="station-info" style="font-size:12px; color:#57606a; margin-bottom:12px;"></p>
+                <div class="chart-wrapper" style="height:200px;"><canvas id="stationChart"></canvas></div>
             </div>
         </div>
     </div>
@@ -272,24 +253,26 @@
     <div id="summary-view" class="view-container">
         <div class="summary-row">
             <div class="summary-col">
-                <h3>Station Ranking</h3>
+                <div class="card-header"><h3>Station Rankings</h3></div>
                 <div class="chart-wrapper"><canvas id="rankStationChart"></canvas></div>
             </div>
             <div class="summary-col">
-                <h3>Yearly Trends</h3>
+                <div class="card-header"><h3>Yearly Trends</h3></div>
                 <div class="chart-wrapper"><canvas id="rankYearChart"></canvas></div>
             </div>
         </div>
         
         <div class="summary-row" style="flex:1;">
             <div class="summary-col" style="flex:1; overflow:hidden;">
-                <h3>Correlation Matrix</h3>
-                <div style="overflow:auto; height:100%;" id="correlation-container"><p style="text-align:center; margin-top:50px;">Loading Matrix...</p></div>
+                <div class="card-header"><h3>Correlation Matrix</h3></div>
+                <div style="overflow:auto; height:100%;" id="correlation-container"><p style="text-align:center; font-size:12px; color:#57606a; margin-top:20px;">Loading...</p></div>
             </div>
             <div class="summary-col" style="flex:1;">
-                <h3 id="corr-chart-title">Relationship</h3>
+                <div class="card-header">
+                    <h3 id="corr-chart-title">Analysis</h3>
+                </div>
                 <div class="chart-wrapper"><canvas id="corrScatterChart"></canvas></div>
-                <p style="font-size:12px; text-align:center; margin-top:10px; font-style:italic;">Select a cell to analyze details.</p>
+                <p style="font-size:11px; text-align:center; color:#57606a; margin-top:8px;">Select a cell to view correlation.</p>
             </div>
         </div>
     </div>
@@ -298,20 +281,21 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        // --- VINTAGE CHART CONFIG ---
-        // Using "Ink" colors and serif fonts
-        Chart.defaults.font.family = "'Cormorant Garamond', serif";
-        Chart.defaults.font.size = 14;
-        Chart.defaults.color = '#2c2c2c';
-        const vintageColors = {
-            ink: '#2c2c2c',
-            red: '#8b0000',
-            blue: '#192a56',
-            paper: '#f4e4bc'
+        // --- CONFIG: GITHUB STYLE CHART DEFAULTS ---
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif';
+        Chart.defaults.font.size = 12;
+        Chart.defaults.color = '#57606a'; // Secondary text color
+        
+        const ghColors = {
+            blue: '#0969da',
+            green: '#2da44e',
+            gray: '#8b949e',
+            bgBlue: 'rgba(9, 105, 218, 0.1)',
+            bgGreen: 'rgba(45, 164, 78, 0.1)'
         };
 
         const map = L.map('map').setView([13.0, 100.5], 6);
-        // Using CartoDB Light but styling it with CSS filter to look aged
+        // Simple light map (CartoDB Positron) matches GitHub's clean aesthetic
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { 
             attribution: '&copy; CARTO' 
         }).addTo(map);
@@ -328,10 +312,10 @@
 
         let currentDepthIndex = 0;
         const depthLevels = [
-            { id: 'all', dbValue: null, title: 'ALL DEPTHS', subtitle: 'Average Value' },
-            { id: 'surface', dbValue: 'S', title: 'SURFACE', subtitle: 'Depth ~ 0-1m' },
-            { id: 'mid', dbValue: 'M', title: 'MID-WATER', subtitle: 'Mid Depth' },
-            { id: 'bottom', dbValue: 'B', title: 'BOTTOM', subtitle: 'Seabed' }
+            { id: 'all', dbValue: null, title: 'All Depths', subtitle: 'Average' },
+            { id: 'surface', dbValue: 'S', title: 'Surface', subtitle: '0-1m' },
+            { id: 'mid', dbValue: 'M', title: 'Mid-Water', subtitle: 'Mid' },
+            { id: 'bottom', dbValue: 'B', title: 'Bottom', subtitle: 'Seabed' }
         ];
         const levelMap = { 'S': 'Surface', 'M': 'Mid-Water', 'B': 'Bottom' };
         const yLabelsOrder = ['Surface', 'Mid-Water', 'Bottom'];
@@ -413,15 +397,15 @@
         }
 
         function getColor(value, min, max) {
-            if (value === null || value === undefined) return '#a0a0a0';
-            if (max === min) return '#555';
+            if (value === null || value === undefined) return '#d0d7de';
+            if (max === min) return '#57606a';
             const ratio = (value - min) / (max - min);
-            // Monochrome / Ink Scale
-            if (ratio > 0.8) return '#000000'; // Pure Ink
-            if (ratio > 0.6) return '#2c2c2c'; 
-            if (ratio > 0.4) return '#595959'; 
-            if (ratio > 0.2) return '#8c8c8c'; 
-            return '#bfbfbf'; // Light Gray
+            // GitHub Blue Scale
+            if (ratio > 0.8) return '#0550ae'; 
+            if (ratio > 0.6) return '#0969da'; 
+            if (ratio > 0.4) return '#218bff'; 
+            if (ratio > 0.2) return '#54aeff'; 
+            return '#ddf4ff'; 
         }
 
         function renderMapByDepth() {
@@ -466,16 +450,15 @@
                         drawn.add(point.station);
                     }
                     const color = getColor(val, minVal, maxVal);
-                    // Circle Marker with heavy border to look like ink
                     const marker = L.circleMarker([point.lat, point.lon], { 
                         radius: 6, 
                         fillColor: color, 
-                        color: "#000", 
-                        weight: 2, 
+                        color: "#fff", 
+                        weight: 1, 
                         opacity: 1, 
-                        fillOpacity: 1 
+                        fillOpacity: 0.9
                     });
-                    marker.bindPopup(`<div style="text-align:center; font-family:'Cormorant Garamond'"><b>${point.station}</b><br><span style="font-size:12px;">${point.sampling_level}</span><br>${paramName}: <b>${val.toFixed(2)}</b></div>`);
+                    marker.bindPopup(`<div style="text-align:center; font-family:-apple-system;"><b>${point.station}</b><br><span style="font-size:11px; color:#57606a;">${point.sampling_level}</span><br>${paramName}: <b style="color:${color}">${val.toFixed(2)}</b></div>`);
                     marker.on('click', () => renderStationProfile(point.station));
                     markersLayer.addLayer(marker);
                 }
@@ -503,9 +486,8 @@
             legendControl = L.control({position: 'bottomright'});
             legendControl.onAdd = function () {
                 const div = L.DomUtil.create('div', 'legend');
-                div.innerHTML = `<h4>${name}</h4><div class="legend-gradient-bar"></div>
-                <div class="legend-labels"><span>${min.toFixed(2)}</span><span>${max.toFixed(2)}</span></div>
-                <div style="font-size:10px;text-align:center;margin-top:2px;">Global Range</div>`;
+                div.innerHTML = `<h4 style="margin:0 0 8px; font-weight:600;">${name}</h4><div class="legend-gradient-bar"></div>
+                <div class="legend-labels"><span>${min.toFixed(2)}</span><span>${max.toFixed(2)}</span></div>`;
                 return div;
             };
             legendControl.addTo(map);
@@ -529,7 +511,6 @@
                 });
         }
 
-        // --- CHARTS STYLING: MONOCHROME/VINTAGE ---
         function renderRankingCharts(stations, years, paramName) {
             const sortedStations = stations.sort((a,b) => b.avg_val - a.avg_val);
             const displaySt = sortedStations.slice(0, 10);
@@ -543,9 +524,8 @@
                     datasets: [{
                         label: `Avg ${paramName}`,
                         data: displaySt.map(d => d.avg_val),
-                        backgroundColor: vintageColors.ink,
-                        borderColor: vintageColors.ink,
-                        borderWidth: 1
+                        backgroundColor: ghColors.blue,
+                        borderRadius: 4
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y' }
@@ -561,9 +541,8 @@
                     datasets: [{
                         label: `Avg ${paramName}`,
                         data: sortedYears.map(d => d.avg_val),
-                        backgroundColor: vintageColors.blue, // Navy for years
-                        borderColor: vintageColors.ink,
-                        borderWidth: 1
+                        backgroundColor: ghColors.green,
+                        borderRadius: 4
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
@@ -593,20 +572,14 @@
             paramsList.forEach((p1, i) => {
                 html += `<tr><th>${shortNames[i]}</th>`;
                 paramsList.forEach((p2, j) => {
-                    if (i === j) html += '<td style="background:#ddd;">1.0</td>';
+                    if (i === j) html += '<td style="background:#f6f8fa; color:#d0d7de;">1.00</td>';
                     else {
                         const r = calcCorr(p1, p2);
                         let bg = 'transparent';
-                        let textColor = 'black';
-                        // Style correlation like heat intensity map (Monochrome/Red)
-                        if(r > 0) {
-                            bg = `rgba(44, 44, 44, ${Math.abs(r)})`; // Black for positive
-                            if(Math.abs(r)>0.5) textColor = 'white';
-                        } else {
-                            bg = `rgba(139, 0, 0, ${Math.abs(r)})`; // Dark Red for negative
-                            if(Math.abs(r)>0.5) textColor = 'white';
-                        }
+                        if(r > 0) bg = `rgba(9, 105, 218, ${Math.abs(r)})`; // Blue Positive
+                        else bg = `rgba(207, 34, 46, ${Math.abs(r)})`; // Red Negative
                         
+                        let textColor = Math.abs(r) > 0.5 ? 'white' : 'inherit';
                         html += `<td class="corr-cell" onclick="updateCorrScatterChart('${p1}', '${p2}', this)" style="background:${bg}; color:${textColor}">${r.toFixed(2)}</td>`;
                     }
                 });
@@ -638,15 +611,15 @@
             const minX = Math.min(...dataPoints.map(d => d.x)), maxX = Math.max(...dataPoints.map(d => d.x));
             const trendData = [{ x: minX, y: reg.m * minX + reg.b }, { x: maxX, y: reg.m * maxX + reg.b }];
 
-            document.getElementById('corr-chart-title').innerHTML = `RELATIONSHIP: ${xName} vs ${yName} <span style="font-size:12px; font-weight:400;">(R²=${reg.r2.toFixed(3)})</span>`;
+            document.getElementById('corr-chart-title').innerHTML = `${xName} vs ${yName} <span style="font-weight:400; color:#57606a;">(R²=${reg.r2.toFixed(3)})</span>`;
             const ctx = document.getElementById('corrScatterChart').getContext('2d');
             if (corrScatterChart) corrScatterChart.destroy();
             corrScatterChart = new Chart(ctx, {
                 type: 'scatter',
                 data: {
                     datasets: [
-                        { label: 'Data', data: dataPoints, backgroundColor: 'rgba(44, 44, 44, 0.3)', pointRadius: 2 },
-                        { label: 'Trend', data: trendData, type: 'line', borderColor: vintageColors.red, borderWidth: 2, pointRadius: 0, fill: false, tension:0 }
+                        { label: 'Data', data: dataPoints, backgroundColor: ghColors.blue, pointRadius: 2 },
+                        { label: 'Trend', data: trendData, type: 'line', borderColor: '#cf222e', borderWidth: 2, pointRadius: 0, fill: false, tension:0 }
                     ]
                 },
                 options: { responsive: true, maintainAspectRatio: false, scales: { x: { title: { display: true, text: xName } }, y: { title: { display: true, text: yName } } } }
@@ -674,7 +647,7 @@
             if (avgProfileChart) avgProfileChart.destroy();
             avgProfileChart = new Chart(ctxAvg, {
                 type: 'line',
-                data: { labels: yLabelsOrder, datasets: [{ label: 'Average Profile', data: lineData, borderColor: vintageColors.ink, borderDash: [5,5], backgroundColor: 'transparent', tension: 0, pointRadius:6, pointBackgroundColor: vintageColors.ink }] },
+                data: { labels: yLabelsOrder, datasets: [{ label: 'Average Profile', data: lineData, borderColor: ghColors.green, backgroundColor: ghColors.bgGreen, tension: 0.3, pointRadius:4, fill:true }] },
                 options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { y: { reverse: true, type:'category' }, x:{title:{display:true,text:paramName}} } }
             });
 
@@ -683,7 +656,7 @@
             if (scatterChart) scatterChart.destroy();
             scatterChart = new Chart(ctxScat, {
                 type: 'scatter',
-                data: { datasets: [{ label: 'All Data', data: scatterData, backgroundColor: 'rgba(44, 44, 44, 0.5)', pointRadius:2 }] },
+                data: { datasets: [{ label: 'All Data', data: scatterData, backgroundColor: 'rgba(9, 105, 218, 0.5)', pointRadius:2.5 }] },
                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { reverse: true, title:{display:true, text:'Depth (m)'} }, x:{title:{display:true,text:paramName}} } }
             });
         }
@@ -701,11 +674,11 @@
                 type: 'line',
                 data: {
                     labels: yLabelsOrder,
-                    datasets: [{ label: stationName, data: sData.map(d=>({x:d[param], y:levelMap[d.sampling_level]||d.sampling_level})), borderColor: vintageColors.blue, tension:0, fill:false, pointBackgroundColor: '#fff', pointBorderColor: vintageColors.blue, pointRadius: 5 }]
+                    datasets: [{ label: stationName, data: sData.map(d=>({x:d[param], y:levelMap[d.sampling_level]||d.sampling_level})), borderColor: ghColors.blue, tension:0, fill:false, pointBackgroundColor: ghColors.blue }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { y: { type: 'category', reverse: true, title: { display: true, text: 'Level' } }, x:{title:{display:true,text:paramName}} } }
             });
-            document.getElementById('station-info').innerHTML = `STATION: <b>${stationName}</b> | ${paramName}`;
+            document.getElementById('station-info').innerHTML = `Station: <b>${stationName}</b> &middot; Parameter: ${paramName}`;
         }
 
         function closeStationView() { renderOverviewCharts(); }
