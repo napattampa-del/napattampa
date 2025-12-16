@@ -101,7 +101,7 @@ app.get('/api/summary/correlation-data', async (req, res) => {
 });
 
 // **ส่วนที่เพิ่ม: ส่งหน้าเว็บ index.html เมื่อเปิดเข้ามา**
-app.get('*', (req, res) => {
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
